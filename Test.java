@@ -2,7 +2,16 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.*;
+import java.util.ArrayList;
+
+import java.io.*;
 
 public class Test {
 	 private JFrame mainFrame;
@@ -43,7 +52,10 @@ public class Test {
 	 private JLabel lblWwwUri;
 	 private JLabel lblDatumUpisa;
 	 private JLabel lblSmer;
+	 
 	 private Connection con;
+	 private String indeks;
+	 private JButton btnPrint;
 	 
 	   static {
 		   try {
@@ -286,7 +298,7 @@ public class Test {
 		      btnSaveChanges.setBounds(556, 377, 160, 23);
 		      panel.add(btnSaveChanges);
 		      
-		      JButton btnPrint = new JButton("Ispisi u datoteku");
+		      btnPrint = new JButton("Ispisi u datoteku");
 		      btnPrint.setBounds(556, 415, 160, 23);
 		      panel.add(btnPrint);
 	
@@ -294,13 +306,13 @@ public class Test {
 			  //------------------------------
 			  //----------- LOGIKA -----------
 			  //------------------------------
-			
+		      
 		   	  panel.setVisible(false);
 			  lblError.setVisible(false);
 			  
 			  btnChoose.addActionListener(new ActionListener(){
 				  public void actionPerformed(ActionEvent e) {
-					  String indeks = textField.getText();
+					  indeks = textField.getText();
 					  
 					  //ako ne postoji u bazi, isto prikazi
 					  					  
@@ -352,6 +364,7 @@ public class Test {
 						    panel.setVisible(true);
 						    lblError.setText("");
 						    lblError.setVisible(false);
+						    
 						}
 					  } catch (SQLException e1) {
 						  e1.printStackTrace();
@@ -365,7 +378,7 @@ public class Test {
 					try {
 						tfIme.setText(res.getString("ime").trim());
 						tfPrezime.setText(res.getString("prezime").trim());
-						tfPol.setText(res.getString("pol"));
+						tfPol.setText(res.getString("pol").compareTo("z") == 0 ? "Zenski" : "Muski");
 						tfJmbg.setText(res.getString("jmbg"));
 						tfDatumRodjenja.setText(res.getString("datum_rodjenja"));
 						tfMestoRodjenja.setText(res.getString("mesto_rodjenja"));
@@ -383,12 +396,97 @@ public class Test {
 						tfWww.setText(res.getString(18));
 						tfDatumUpisa.setText(res.getString("datum_upisa"));
 						tfSmer.setText(res.getString("naziv").trim());
+						
+					     ArrayList<JTextField> tfs = new ArrayList<>();
+					     tfs.add(tfIme);
+					     tfs.add(tfPrezime);
+					     tfs.add(tfPol);
+					     tfs.add(tfJmbg);
+					     tfs.add(tfImeOca);
+					     tfs.add(tfImeMajke);
+					     tfs.add(tfDatumRodjenja);
+					     tfs.add(tfMestoRodjenja);
+					     tfs.add(tfDrzavaRodjenja);
+					     tfs.add(tfUlica);
+					     tfs.add(tfBroj);
+					     tfs.add(tfMesto);
+					     tfs.add(tfDrzava);
+					     tfs.add(tfPostanskiBroj);
+					     tfs.add(tfBrojTelefona);
+					     tfs.add(tfBrojMobilnog);
+					     tfs.add(tfEmail);
+					     tfs.add(tfWww);
+					     tfs.add(tfDatumUpisa);
+					     tfs.add(tfSmer);
+					     
+					     for(JTextField t : tfs){
+					    	t.getDocument().addDocumentListener(new DocumentListener(){
+								public void insertUpdate(DocumentEvent e) {
+									btnPrint.setEnabled(false);
+								}
+								public void removeUpdate(DocumentEvent e) {
+									btnPrint.setEnabled(false);					
+								}
+								public void changedUpdate(DocumentEvent e) {
+									btnPrint.setEnabled(false);						
+								}
+					    		
+					    	});
+					     };		
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
 				}
 			  });	      
-	
+	  
+			  
+			  btnPrint.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e) {
+					String no = indeks.substring(4);
+					String year = indeks.substring(2, 4);
+					String datName = "mi" + year + no + ".txt";
+					
+					//mozda bi bilo naaajbolje da ovo bude citanje iz baze
+					//ili nekako onemoguciti print bez commita
+					//ako se nesto promenilo
+					try(PrintWriter out = new PrintWriter(Files.newBufferedWriter(Paths.get(datName), StandardCharsets.UTF_8))){
+						out.println("Ime:\t\t\t\t\t" + tfIme.getText());
+						out.println("Prezime:\t\t\t\t" + tfPrezime.getText());
+						out.println("JMBG:\t\t\t\t\t" + tfJmbg.getText());
+						out.println("Pol:\t\t\t\t\t" + (tfPol.getText().compareTo("z") == 0 ? "Zenski" : "Muski"));	
+						out.println("Ime oca:\t\t\t\t" + tfImeOca.getText());
+						out.println("Ime majke:\t\t\t\t" + tfImeMajke.getText());
+						out.println("Datum rodjenja:\t\t\t" + tfDatumRodjenja.getText());
+						out.println("Mesto rodjenja:\t\t\t" + tfMestoRodjenja.getText());
+						out.println("Drzava rodjenja:\t\t" + tfDrzavaRodjenja.getText());
+						out.println("Ulica stanovanja:\t\t" + tfUlica.getText());
+						out.println("Kucni broj:\t\t\t\t" + tfBroj.getText());
+						out.println("Mesto stanovanja:\t\t" + tfMesto.getText());
+						out.println("Drzava stanovanja:\t\t" + tfDrzava.getText());
+						out.println("Postanski broj:\t\t\t" + tfPostanskiBroj.getText());
+						out.println("Broj telefona:\t\t\t" + tfBrojTelefona.getText());
+						out.println("Broj mobilnog:\t\t\t" + tfBrojMobilnog.getText());
+						out.println("Email:\t\t\t\t\t" + tfEmail.getText());
+						out.println("WWW uri:\t\t\t\t" + tfWww.getText());
+						out.println("Datum upisa:\t\t\t" + tfDatumUpisa.getText());
+						out.println("Broj indeksa:\t\t\t" + textField.getText());
+						out.println("Smer:\t\t\t\t\t" + tfSmer.getText());
+						
+						
+					} catch(IOException e1){
+						e1.printStackTrace();
+					}
+				} 
+			  });
+			  
+			  btnSaveChanges.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e) {
+					//commituj izmene
+					btnPrint.setEnabled(true);
+				}
+				  
+			  });
+			  
 			  //------------------------------
 			  //----------- LOGIKA -----------
 			  //------------------------------
@@ -405,12 +503,12 @@ public class Test {
 		            System.exit(0);
 		         }
 		         
-				public void windowOpened(WindowEvent e) {}
-				public void windowClosed(WindowEvent e) {}
-				public void windowIconified(WindowEvent e) {}
-				public void windowDeiconified(WindowEvent e) {}
-				public void windowActivated(WindowEvent e) {}
-				public void windowDeactivated(WindowEvent e) {}   
+				 public void windowOpened(WindowEvent e) {}
+				 public void windowClosed(WindowEvent e) {}
+				 public void windowIconified(WindowEvent e) {}
+				 public void windowDeiconified(WindowEvent e) {}
+				 public void windowActivated(WindowEvent e) {}
+				 public void windowDeactivated(WindowEvent e) {}   
 				
 		      });
 		      
