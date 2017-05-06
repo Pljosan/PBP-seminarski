@@ -49,6 +49,7 @@ public class Test {
 	   }
 	   private void prepareGUI(){
 	      mainFrame = new JFrame("Podaci o studentu");
+	      mainFrame.setResizable(false);
 	      mainFrame.getContentPane().setBackground(new Color(175, 238, 238));
 	      mainFrame.setSize(742,586);
 	      mainFrame.getContentPane().setLayout(null);
@@ -265,6 +266,28 @@ public class Test {
 	      JButton btnPrint = new JButton("Ispisi u datoteku");
 	      btnPrint.setBounds(556, 415, 140, 23);
 	      panel.add(btnPrint);
+	      
+	      //------------------------------
+	      //----------- LOGIKA -----------
+	      //-------------------------------
+	      
+	      panel.setVisible(false);
+	      lblError.setVisible(false);
+	      
+	      
+	      btnChoose.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+			    String indeks = textField.getText();
+				if(indeks.length() != 8 || indeks.matches("\\d+") == false)
+			    	  lblError.setVisible(true);
+				//ako ne postoji u bazi, isto prikazi
+				else{
+					panel.setVisible(true);
+					lblError.setText("");
+					lblError.setVisible(false);
+				}
+			}
+	      });
 	      
 	      mainFrame.addWindowListener(new WindowAdapter() {
 	         public void windowClosing(WindowEvent windowEvent){
