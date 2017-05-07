@@ -102,7 +102,7 @@ public class Test {
 		      mainFrame.getContentPane().add(lblError);
 		      
 		      JButton btnChoose = new JButton("Izaberi!");
-		      btnChoose.setBounds(566, 36, 89, 23);
+		      btnChoose.setBounds(492, 36, 112, 23);
 		      mainFrame.getContentPane().add(btnChoose);
 		      
 		      panel = new JPanel();
@@ -290,6 +290,10 @@ public class Test {
 		      btnPrint = new JButton("Ispisi u datoteku");
 		      btnPrint.setBounds(556, 415, 160, 23);
 		      panel.add(btnPrint);
+		      
+		      JButton btnChooseAnother = new JButton("Izaberi novog!");
+		      btnChooseAnother.setBounds(614, 36, 112, 23);
+		      mainFrame.getContentPane().add(btnChooseAnother);
 	
 	
 			  //------------------------------
