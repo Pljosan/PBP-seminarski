@@ -34,7 +34,6 @@ public class Test {
 	 private JTextField tfBrojTelefona;
 	 private JTextField tfBrojMobilnog;
 	 private JTextField tfEmail;
-	 private JTextField tfWww;
 	 private JTextField tfDatumUpisa;
 	 private JTextField tfSmer;
 	 private JLabel lblDrzavaRodjenja;
@@ -49,7 +48,6 @@ public class Test {
 	 private JLabel lblNewLabel_1;
 	 private JLabel lblBrojMobilnog;
 	 private JLabel lblEmail;
-	 private JLabel lblWwwUri;
 	 private JLabel lblDatumUpisa;
 	 private JLabel lblSmer;
 	 
@@ -193,11 +191,6 @@ public class Test {
 		      panel.add(tfEmail);
 		      tfEmail.setColumns(10);
 		      
-		      tfWww = new JTextField();
-		      tfWww.setBounds(10, 380, 195, 20);
-		      panel.add(tfWww);
-		      tfWww.setColumns(10);
-		      
 		      tfDatumUpisa = new JTextField();
 		      tfDatumUpisa.setBounds(365, 287, 195, 20);
 		      panel.add(tfDatumUpisa);
@@ -282,10 +275,6 @@ public class Test {
 		      lblEmail.setBounds(215, 352, 140, 14);
 		      panel.add(lblEmail);
 		      
-		      lblWwwUri = new JLabel("WWW uri");
-		      lblWwwUri.setBounds(215, 383, 140, 14);
-		      panel.add(lblWwwUri);
-		      
 		      lblDatumUpisa = new JLabel("Datum upisa");
 		      lblDatumUpisa.setBounds(570, 290, 140, 14);
 		      panel.add(lblDatumUpisa);
@@ -312,10 +301,9 @@ public class Test {
 			  
 			  btnChoose.addActionListener(new ActionListener(){
 				  public void actionPerformed(ActionEvent e) {
-					  indeks = textField.getText();
+					  btnPrint.setEnabled(true);
 					  
-					  //ako ne postoji u bazi, isto prikazi
-					  					  
+					  indeks = textField.getText();
 					  try {
 						String selectInd = "select indeks " +
 										   "from dosije " +
@@ -347,7 +335,7 @@ public class Test {
 												" kucni_broj, mesto_stanovanja, " +
 												" postanski_broj, drzava_stanovanja, " +
 												" telefon, mobilni_telefon, " +
-												" email, 'www uri', datum_upisa, " +
+												" email, datum_upisa, " +
 												" naziv " +
 												"from dosije d join smer s " +
 												"	on d.id_smera = s.id_smera " +
@@ -365,7 +353,12 @@ public class Test {
 						    lblError.setText("");
 						    lblError.setVisible(false);
 						    
+
+						    
 						}
+						  textField.setEnabled(false);
+						  if(lblError.isVisible())
+							  textField.setEnabled(true);
 					  } catch (SQLException e1) {
 						  e1.printStackTrace();
 					  }
@@ -393,11 +386,10 @@ public class Test {
 						tfBrojTelefona.setText(res.getString("telefon"));
 						tfBrojMobilnog.setText(res.getString("mobilni_telefon"));
 						tfEmail.setText(res.getString("email"));
-						tfWww.setText(res.getString(18));
 						tfDatumUpisa.setText(res.getString("datum_upisa"));
 						tfSmer.setText(res.getString("naziv").trim());
 						
-					     ArrayList<JTextField> tfs = new ArrayList<>();
+					    ArrayList<JTextField> tfs = new ArrayList<>();
 					     tfs.add(tfIme);
 					     tfs.add(tfPrezime);
 					     tfs.add(tfPol);
@@ -415,10 +407,10 @@ public class Test {
 					     tfs.add(tfBrojTelefona);
 					     tfs.add(tfBrojMobilnog);
 					     tfs.add(tfEmail);
-					     tfs.add(tfWww);
 					     tfs.add(tfDatumUpisa);
 					     tfs.add(tfSmer);
-					     
+
+						  btnPrint.setEnabled(true);
 					     for(JTextField t : tfs){
 					    	t.getDocument().addDocumentListener(new DocumentListener(){
 								public void insertUpdate(DocumentEvent e) {
@@ -442,18 +434,15 @@ public class Test {
 			  
 			  btnPrint.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e) {
-					String no = indeks.substring(4);
-					String year = indeks.substring(2, 4);
-					String datName = "mi" + year + no + ".txt";
+					String datName = indeks + ".txt";
 					
 					//mozda bi bilo naaajbolje da ovo bude citanje iz baze
-					//ili nekako onemoguciti print bez commita
-					//ako se nesto promenilo
+					//ali za sada je - "ne moze print ako nije sacuvano"
 					try(PrintWriter out = new PrintWriter(Files.newBufferedWriter(Paths.get(datName), StandardCharsets.UTF_8))){
 						out.println("Ime:\t\t\t\t\t" + tfIme.getText());
 						out.println("Prezime:\t\t\t\t" + tfPrezime.getText());
 						out.println("JMBG:\t\t\t\t\t" + tfJmbg.getText());
-						out.println("Pol:\t\t\t\t\t" + (tfPol.getText().compareTo("z") == 0 ? "Zenski" : "Muski"));	
+						out.println("Pol:\t\t\t\t\t" + tfPol.getText());	
 						out.println("Ime oca:\t\t\t\t" + tfImeOca.getText());
 						out.println("Ime majke:\t\t\t\t" + tfImeMajke.getText());
 						out.println("Datum rodjenja:\t\t\t" + tfDatumRodjenja.getText());
@@ -467,7 +456,6 @@ public class Test {
 						out.println("Broj telefona:\t\t\t" + tfBrojTelefona.getText());
 						out.println("Broj mobilnog:\t\t\t" + tfBrojMobilnog.getText());
 						out.println("Email:\t\t\t\t\t" + tfEmail.getText());
-						out.println("WWW uri:\t\t\t\t" + tfWww.getText());
 						out.println("Datum upisa:\t\t\t" + tfDatumUpisa.getText());
 						out.println("Broj indeksa:\t\t\t" + textField.getText());
 						out.println("Smer:\t\t\t\t\t" + tfSmer.getText());
@@ -481,7 +469,61 @@ public class Test {
 			  
 			  btnSaveChanges.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e) {
-					//commituj izmene
+					
+					try {
+						String insertNew = "update dosije " +
+								   "set ime = ?, " +
+								   "	prezime = ?, " +
+								   "	pol = ?, " +
+								   "	jmbg = ?, " +
+								   "	datum_rodjenja = ?, " +
+								   "	mesto_rodjenja = ?, " +
+								   "	drzava_rodjenja = ?, " +
+								   "	ime_oca = ?, " +
+								   "	ime_majke = ?, " +
+								   "	ulica_stanovanja = ?, " +
+								   "	mesto_stanovanja = ?, " +
+								   "	kucni_broj = ?, " +
+								   "	drzava_stanovanja = ?, " +
+								   "	telefon = ?, " +
+								   "	mobilni_telefon = ?, " +
+								   "	email = ?, " +
+								   "	datum_upisa = ?, " +
+								   "	postanski_broj = ? " +
+								   "where indeks = ?";
+				
+						PreparedStatement s2;
+						
+						String pol = Character.toString(tfPol.getText().charAt(0)).toLowerCase();
+						
+						s2 = con.prepareStatement(insertNew);
+						s2.setString(1, tfIme.getText());
+						s2.setString(2, tfPrezime.getText());
+						s2.setString(3, pol);
+						s2.setString(4, tfJmbg.getText());
+						s2.setString(5, tfDatumRodjenja.getText());
+						s2.setString(6, tfMestoRodjenja.getText());
+						s2.setString(7, tfDrzavaRodjenja.getText());
+						s2.setString(8, tfImeOca.getText());
+						s2.setString(9, tfImeMajke.getText());
+						s2.setString(10, tfUlica.getText());
+						s2.setString(11, tfMesto.getText());
+						s2.setString(12, tfBroj.getText());
+						s2.setString(13, tfDrzava.getText());
+						s2.setString(14, tfBrojTelefona.getText());
+						s2.setString(15, tfBrojMobilnog.getText());
+						s2.setString(16, tfEmail.getText());
+						s2.setString(17, tfDatumUpisa.getText());
+						s2.setString(18, tfPostanskiBroj.getText());
+						s2.setString(19, textField.getText());
+						
+						s2.executeUpdate();
+						System.out.println("Updated!");
+						con.commit();
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+					
 					btnPrint.setEnabled(true);
 				}
 				  
